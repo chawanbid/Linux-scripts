@@ -1,0 +1,80 @@
+#/bin/bash
+#chkconfig: 2345 10 90
+# description: Starts and Stops the Tomcat daemon.
+#by chawan
+##############################################
+#Startup script for Tomcat on Linux
+
+#filename tomcat.sh
+#Make sure the Java and the tomcat installation path has been added to the PATH
+
+JAVA_HOME=/usr/local/jdk1.8              
+CATALINA_HOME=/usr/local/tomcat7080
+PID=`ps aux|grep -v grep|grep "/usr/local/tomcat\>"|awk '{print $2}'`      
+export JAVA_HOME PID
+export CATALINA_HOME
+PORT=7080
+###############################################                
+
+start() {
+	echo "正在判断服务状态，请稍等！"	
+    	echo "请稍等1秒钟"
+    	echo "1";sleep 1
+   	if	`/usr/sbin/ss -tnl | grep "\b$PORT\b" &>/dev/null`;then
+   		echo "Tomcat已经正在运行了！"  
+  	else 
+   		echo "Tomcat没有运行，1秒后启动！"
+		echo 1;sleep 1  
+  		$CATALINA_HOME/bin/catalina.sh start 
+  		echo  "Tomcat 已经成功启动完成,3秒后判断是否启动成功"
+        	echo "3";sleep 1;echo "2";sleep 1;echo "1";sleep 1
+		if  `/usr/sbin/ss -tnl | grep  "\b$PORT\b" &>/dev/null`;then
+			PID=`ps aux|grep -v grep|grep "/usr/local/tomcat\>"|awk '{print $2}'`
+			echo "Tomcat 已经成功启动.PID为:${PID}"
+	    	else
+			echo "Tomcat启动失败，请重新启动！"
+		fi
+	fi					
+}
+stop() {
+echo "正在判断服务状态，请稍等1秒钟！"	
+	echo "1";sleep 1
+	if  `/usr/sbin/ss -tnl | grep "\b$PORT\b" &>/dev/null` 
+	   then	
+		echo "Tomcat运行中，1秒后关闭！"
+		echo  1;sleep 1 
+		echo "即将关闭Tomcat服务，请稍等！" 
+        	$CATALINA_HOME/bin/catalina.sh stop 
+		echo "已经执行关闭命令,正在检查关闭了多少Tomcat进程，请稍等5秒钟！"
+		sleep 2
+        echo "3";sleep 1;echo "2";sleep 1;echo "1";sleep 1
+		if  `/usr/sbin/ss -tnl | grep  "\b$PORT\b" &>/dev/null`;then
+				kill -9 $PID && echo "已成功关闭tomcat进程"
+			else
+				echo  "Tomcat 已经关闭完成！" 
+		fi
+	else
+		echo "Tomcat 没有运行"
+	fi
+}
+status(){
+	echo "$PID"
+}
+
+# See how we were called                                                  
+case "$1" in
+  start)
+        start 
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        stop && start
+        ;;
+  status)
+	status
+	;;
+  *)
+        echo "Usage: $0 {start|stop|restart}"
+esac
