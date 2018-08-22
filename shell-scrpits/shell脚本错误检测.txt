@@ -1,0 +1,47 @@
+########## 1. 配置vim ##########
+# 可以直接复制 粘贴到xshell运行即可
+
+cp -f /usr/share/vim/vim74/vimrc_example.vim ~/.vimrc
+
+sed -i 's/set backup/set nobackup/g' ~/.vimrc
+
+cat <<EOF >> ~/.vimrc
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set autoindent
+set number
+syntax enable
+syntax on
+au BufNewFile,BufRead *.fun set filetype=sh
+EOF
+}
+############# 2. 跟踪脚本执行 ################
+set -x		开启脚本执行追踪
+set +x		关闭脚本执行追踪
+
+############# 3. echo/print ##################
+
+############# 4. 利用函数进行调试脚本 ###############
+
+# ========== debug function ==========
+# power on =1 ; other is off
+DePower=1
+
+# usage: DeBug $? N [description]
+#
+# N:调试的行号
+# 
+debug() {
+    if [[ $DePower -eq 1 ]] ;then
+        [[ $1 -ne 0 ]] && echo -e "\e[31mError appear. "
+        echo -e "##### Here is $2 in this script. #####\e[0m"
+        [[ -n $3  ]] && echo -e "$3 "
+    fi
+}
+
+# ========== debug ==========
+# 
+
+############# 4. 注释/提取代码执行 ###############
